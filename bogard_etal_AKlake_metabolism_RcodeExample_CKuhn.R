@@ -39,14 +39,15 @@ met.fun <- function(args){
   
   #atom fractions calculated for input into mass balance:
   dosat <- do * 100/do.pct.sat #calculate dissolved oxygen concentration at equilibrium with atmosphere 
-  ro18o2<-((delo18.o2/1000)*(0.00205))+(0.00205)#converting del value of DO-O18 back to O18:O16 ratio
-  ro18h2o <- ((delo18.h2o/1000)*(0.00205))+(0.00205) #converting del value of H2O-O18 back to O18:O16 ratio
-  o18o2 <- ro18o2 / (1 + ro18o2) #converting ratio of O18:O16 in DO to atomic fraction following Bogard et al. (2017)
-  o18h2o <- ro18h2o / (1 + ro18h2o) #converting ratio of O18:O16 in H2O to atomic fraction following Bogard et al. (2017)
-  o18air <- 0.00209895/(1 + 0.00209895) #fixed value: atomic fraction of O18 as AF=R/(R+1)
-  #switched to d18O-air value = 23.88 permil (or 0.00209895 as ratio), following Barkan & Luz 2005 
-  
-  #generic fractionation factors
+  ro18o2<-((delo18.o2/1000)*(0.0020052))+(0.0020052)#converting del value of DO-O18 back to O18:O16 ratio
+  ro18h2o <- ((delo18.h2o/1000)*(0.0020052))+(0.0020052) #converting del value of H2O-O18 back to O18:O16 ratio
+  ro18air = ((23.88/1000)*(0.0020052))+(0.0020052) #converting del value of O2-atmosphere back to O18:O16 ratio
+  #switched to d18O-air value = 23.88 permil following Barkan & Luz 2005 
+     o18o2 <- ro18o2 / (1 + ro18o2) #converting ratio of O18:O16 in DO to atom fraction following Bogard et al. (2017)
+  o18h2o <- ro18h2o / (1 + ro18h2o) #converting ratio of O18:O16 in H2O to atom fraction following Bogard et al. (2017)
+  o18air <- ro18air/(1 + ro18air) #fixed value: atom fraction of O18 as AF=R/(R+1)
+
+    #generic fractionation factors
   ffp <- 1           # fractionation factor associated with photosynthesis
   ffg <- 0.9972      # fractionation factor associated with gas exchange
   ffs <- 1.0007      # fractionation factor associated with DO solubility
@@ -59,9 +60,9 @@ met.fun <- function(args){
   d <- ffp * o18h2o
   
   
-  gppv <- (k.z * (((do * (b - c)) - (dosat * (a - c))) / (d - c))) #areal GPP
-  rv <- (k.z * (((do * (b - d)) - (dosat * (a - d))) / (d - c))) #areal R
-  nepv <- gppv - rv #areal NEP
+  gppv <- (k.z * (((do * (b - c)) - (dosat * (a - c))) / (d - c))) #volumetric GPP
+  rv <- (k.z * (((do * (b - d)) - (dosat * (a - d))) / (d - c))) #volumetric R
+  nepv <- gppv - rv #volumetric NEP
   gppa <- zmix * (k.z * (((do * (b - c)) - (dosat * (a - c))) / (d - c))) #areal GPP
   ra <- zmix * (k.z * (((do * (b - d)) - (dosat * (a - d))) / (d - c))) #areal R
   nepa <- gppa - ra #areal NEP
@@ -70,7 +71,7 @@ met.fun <- function(args){
   #PtoR ratios calculated using a fractionation value of 0.985
   gpptor <- ((o18o2 * ffr) - g) / ((o18h2o * ffp) - g)
   
-  output<- data.frame(gppv,gppa,rv,ra,nepv,nepa,gpptor)
+  output<- data.frame(gppv,gppa,rv,ra,nepv,nepa,gpptor,a,b,c,d,g)
   return(output)
 }
 
